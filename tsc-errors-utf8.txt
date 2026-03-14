@@ -1,0 +1,2 @@
+﻿components/ui/pagination.tsx(52,7): error TS2322: Type '{ variant: "ghost" | "outline"; size: "default" | "sm" | "lg" | "icon" | null; className: string; nativeButton: boolean; render: Element; }' is not assignable to type 'IntrinsicAttributes & ClassAttributes<HTMLButtonElement> & ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<...> & { ...; }'.
+  Property 'nativeButton' does not exist on type 'IntrinsicAttributes & ClassAttributes<HTMLButtonElement> & ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<...> & { ...; }'.
