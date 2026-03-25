@@ -121,7 +121,7 @@ export function ScholarshipsClient({
                   <div className="empty-state">
                     <Award size={40} className="empty-state-icon" />
                     <div className="empty-state-title">No scholarships found</div>
-                    <div className="empty-state-desc">Add your first scholarship â†’</div>
+                    <div className="empty-state-desc">Add your first scholarship -&gt;</div>
                   </div>
                 </TableCell>
               </TableRow>

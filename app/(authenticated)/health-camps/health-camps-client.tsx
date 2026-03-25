@@ -123,7 +123,7 @@ export function HealthCampsClient({
                   <div className="empty-state">
                     <Tent size={40} className="empty-state-icon" />
                     <div className="empty-state-title">No health camps found</div>
-                    <div className="empty-state-desc">Add your first health camp â†’</div>
+                    <div className="empty-state-desc">Add your first health camp -&gt;</div>
                   </div>
                 </TableCell>
               </TableRow>
@@ -134,8 +134,8 @@ export function HealthCampsClient({
                   <TableCell><Badge variant="default">{camp.category}</Badge></TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{camp.location}</TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{camp.ward}</TableCell>
-                  <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{camp.date ? format(new Date(camp.date), 'MMM d, yyyy') : 'â€”'}</TableCell>
-                  <TableCell style={{ fontSize: '13px' }}>{camp.seats_available ?? 'â€”'}</TableCell>
+                  <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{camp.date ? format(new Date(camp.date), 'MMM d, yyyy') : '-'}</TableCell>
+                  <TableCell style={{ fontSize: '13px' }}>{camp.seats_available ?? '-'}</TableCell>
                   <TableCell style={{ fontSize: '13px' }}>{camp.registrations_count ?? 0}</TableCell>
                   <TableCell>
                     <button onClick={() => toggleActive(camp.id, camp.is_active)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: camp.is_active ? 'var(--success)' : 'var(--text-muted)' }}>

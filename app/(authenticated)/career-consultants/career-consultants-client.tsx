@@ -121,7 +121,7 @@ export function CareerConsultantsClient({
                   <div className="empty-state">
                     <BriefcaseMedical size={40} className="empty-state-icon" />
                     <div className="empty-state-title">No consultants found</div>
-                    <div className="empty-state-desc">Add your first consultant â†’</div>
+                    <div className="empty-state-desc">Add your first consultant -&gt;</div>
                   </div>
                 </TableCell>
               </TableRow>
@@ -131,8 +131,8 @@ export function CareerConsultantsClient({
                   <TableCell style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{c.name}</TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{c.specialization}</TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{c.experience}</TableCell>
-                  <TableCell style={{ fontSize: '13px' }}>{c.rating ? `â­  ${c.rating}` : 'â€”'}</TableCell>
-                  <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{c.languages || 'â€”'}</TableCell>
+                  <TableCell style={{ fontSize: '13px' }}>{c.rating ? `⭐ ${c.rating}` : '-'}</TableCell>
+                  <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{c.languages || '-'}</TableCell>
                   <TableCell>{c.online ? <Check size={14} style={{ color: 'var(--success)' }} /> : <X size={14} style={{ color: 'var(--text-muted)' }} />}</TableCell>
                   <TableCell>{c.in_person ? <Check size={14} style={{ color: 'var(--success)' }} /> : <X size={14} style={{ color: 'var(--text-muted)' }} />}</TableCell>
                   <TableCell>

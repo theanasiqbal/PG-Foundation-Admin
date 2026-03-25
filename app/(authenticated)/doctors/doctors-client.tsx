@@ -121,7 +121,7 @@ export function DoctorsClient({
                   <div className="empty-state">
                     <Stethoscope size={40} className="empty-state-icon" />
                     <div className="empty-state-title">No doctors found</div>
-                    <div className="empty-state-desc">Add your first doctor â†’</div>
+                    <div className="empty-state-desc">Add your first doctor -&gt;</div>
                   </div>
                 </TableCell>
               </TableRow>

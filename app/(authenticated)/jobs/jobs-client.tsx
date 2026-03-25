@@ -129,7 +129,7 @@ export function JobsClient({
                   <div className="empty-state">
                     <Briefcase size={40} className="empty-state-icon" />
                     <div className="empty-state-title">No jobs found</div>
-                    <div className="empty-state-desc">Post your first job listing â†’</div>
+                    <div className="empty-state-desc">Post your first job listing -&gt;</div>
                   </div>
                 </TableCell>
               </TableRow>
@@ -140,7 +140,7 @@ export function JobsClient({
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{j.company}</TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{j.location}</TableCell>
                   <TableCell><Badge variant={typeVariant[j.type] || 'default'}>{j.type}</Badge></TableCell>
-                  <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{j.ward || 'â€”'}</TableCell>
+                  <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{j.ward || '-'}</TableCell>
                   <TableCell style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{format(new Date(j.created_at), 'MMM d, yyyy')}</TableCell>
                   <TableCell>
                     <button onClick={() => toggleActive(j.id, j.is_active)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: j.is_active ? 'var(--success)' : 'var(--text-muted)' }}>

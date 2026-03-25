@@ -128,7 +128,7 @@ export function SkillCoursesClient({
                   <div className="empty-state">
                     <GraduationCap size={40} className="empty-state-icon" />
                     <div className="empty-state-title">No courses found</div>
-                    <div className="empty-state-desc">Add your first course â†’</div>
+                    <div className="empty-state-desc">Add your first course -&gt;</div>
                   </div>
                 </TableCell>
               </TableRow>

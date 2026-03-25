@@ -125,7 +125,7 @@ export function CitizensClient({
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: '10px', top: '11px', color: 'var(--text-muted)' }} />
             <Input
-              placeholder="Name, phone, or IDâ€¦"
+              placeholder="Name, phone, or ID..."
               style={{ paddingLeft: '32px' }}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -138,7 +138,7 @@ export function CitizensClient({
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: '10px', top: '11px', color: 'var(--text-muted)' }} />
             <Input
-              placeholder="Filter by wardâ€¦"
+              placeholder="Filter by ward..."
               style={{ paddingLeft: '32px' }}
               value={wardFilter}
               onChange={(e) => setWardFilter(e.target.value)}

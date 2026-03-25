@@ -159,7 +159,7 @@ export function IssuesClient({
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: '10px', top: '11px', color: 'var(--text-muted)' }} />
             <Input 
-              placeholder="Filter by typeâ€¦" 
+              placeholder="Filter by type..." 
               style={{ paddingLeft: '32px' }} 
               value={typeFilter} 
               onChange={(e) => setTypeFilter(e.target.value)}
@@ -173,7 +173,7 @@ export function IssuesClient({
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: '10px', top: '11px', color: 'var(--text-muted)' }} />
             <Input 
-              placeholder="Filter by wardâ€¦" 
+              placeholder="Filter by ward..." 
               style={{ paddingLeft: '32px' }} 
               value={wardFilter} 
               onChange={(e) => setWardFilter(e.target.value)}

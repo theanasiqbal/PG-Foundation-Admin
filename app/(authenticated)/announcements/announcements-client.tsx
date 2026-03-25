@@ -147,7 +147,7 @@ export function AnnouncementsClient({
                   <div className="empty-state">
                     <Megaphone size={40} className="empty-state-icon" />
                     <div className="empty-state-title">No announcements found</div>
-                    <div className="empty-state-desc">Create your first announcement â†’</div>
+                    <div className="empty-state-desc">Create your first announcement -&gt;</div>
                   </div>
                 </TableCell>
               </TableRow>

@@ -122,7 +122,7 @@ export function VolunteerProgramsClient({
                   <div className="empty-state">
                     <HeartHandshake size={40} className="empty-state-icon" />
                     <div className="empty-state-title">No volunteer programs found</div>
-                    <div className="empty-state-desc">Add your first program â†’</div>
+                    <div className="empty-state-desc">Add your first program -&gt;</div>
                   </div>
                 </TableCell>
               </TableRow>
@@ -132,7 +132,7 @@ export function VolunteerProgramsClient({
                   <TableCell style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{p.title}</TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{p.date}</TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{p.location}</TableCell>
-                  <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{p.ward || 'â€”'}</TableCell>
+                  <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{p.ward || '-'}</TableCell>
                   <TableCell style={{ fontSize: '13px' }}>{p.volunteers_needed}</TableCell>
                   <TableCell style={{ fontSize: '13px' }}>{p.volunteers_joined}</TableCell>
                   <TableCell>{p.is_recurring ? <Badge variant="resolved">Yes</Badge> : <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No</span>}</TableCell>

@@ -119,7 +119,7 @@ export function CommunityEventsClient({
                   <div className="empty-state">
                     <CalendarDays size={40} className="empty-state-icon" />
                     <div className="empty-state-title">No events found</div>
-                    <div className="empty-state-desc">Add your first event â†’</div>
+                    <div className="empty-state-desc">Add your first event -&gt;</div>
                   </div>
                 </TableCell>
               </TableRow>
@@ -129,7 +129,7 @@ export function CommunityEventsClient({
                   <TableCell style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{ev.title}</TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{format(new Date(ev.date), 'MMM d, yyyy h:mm a')}</TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{ev.location}</TableCell>
-                  <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{ev.ward || 'â€”'}</TableCell>
+                  <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{ev.ward || '-'}</TableCell>
                   <TableCell>
                     <button onClick={() => toggleActive(ev.id, ev.is_active)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: ev.is_active ? 'var(--success)' : 'var(--text-muted)' }}>
                       {ev.is_active ? <Check size={16} /> : <X size={16} />}
