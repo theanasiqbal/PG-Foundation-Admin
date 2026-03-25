@@ -1,25 +1,52 @@
-﻿'use client'
+'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import { Edit, Trash2, Megaphone, Plus, Check, X } from 'lucide-react'
 import { format, isPast } from 'date-fns'
 import { toast } from 'sonner'
 import { AnnouncementForm } from './announcement-form'
 
-export function AnnouncementsClient({ initialAnnouncements }: { initialAnnouncements: any[] }) {
+interface AnnouncementsClientProps {
+  initialAnnouncements: any[]
+  currentPage: number
+  totalPages: number
+  totalCount: number
+}
+
+export function AnnouncementsClient({ 
+  initialAnnouncements,
+  currentPage,
+  totalPages,
+  totalCount
+}: AnnouncementsClientProps) {
   const [announcements, setAnnouncements] = useState(initialAnnouncements)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingAnnouncement, setEditingAnnouncement] = useState<any>(null)
 
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const supabase = createClient()
+
+  useEffect(() => {
+    setAnnouncements(initialAnnouncements)
+  }, [initialAnnouncements])
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from('announcements').delete().eq('id', id)
@@ -27,7 +54,7 @@ export function AnnouncementsClient({ initialAnnouncements }: { initialAnnouncem
       toast.error(error.message)
     } else {
       toast.success('Announcement deleted successfully')
-      setAnnouncements(announcements.filter((a) => a.id !== id))
+      setAnnouncements(announcements.filter((a: any) => a.id !== id))
       router.refresh()
     }
   }
@@ -38,9 +65,15 @@ export function AnnouncementsClient({ initialAnnouncements }: { initialAnnouncem
       toast.error(error.message)
     } else {
       toast.success('Status updated')
-      setAnnouncements(announcements.map((a) => (a.id === id ? { ...a, is_active: !currentStatus } : a)))
+      setAnnouncements(announcements.map((a: any) => (a.id === id ? { ...a, is_active: !currentStatus } : a)))
       router.refresh()
     }
+  }
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('page', page.toString())
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   const typeBadgeVariant: Record<string, any> = {
@@ -53,39 +86,44 @@ export function AnnouncementsClient({ initialAnnouncements }: { initialAnnouncem
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div className="page-header">
         <h1 className="page-title">Announcements</h1>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open)
-          if (!open) setEditingAnnouncement(null)
-        }}>
-          <DialogTrigger
-            render={
-              <Button>
-                <Plus size={14} />
-                Create Announcement
-              </Button>
-            }
-          />
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>{editingAnnouncement ? 'Edit Announcement' : 'Create Announcement'}</DialogTitle>
-            </DialogHeader>
-            <div style={{ marginTop: '16px' }}>
-              <AnnouncementForm
-                initialData={editingAnnouncement}
-                onSuccess={(newAnnouncement) => {
-                  setIsDialogOpen(false)
-                  if (editingAnnouncement) {
-                    setAnnouncements(announcements.map((a) => (a.id === newAnnouncement.id ? newAnnouncement : a)))
-                  } else {
-                    setAnnouncements([newAnnouncement, ...announcements])
-                  }
-                  setEditingAnnouncement(null)
-                  router.refresh()
-                }}
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+            Showing {(currentPage - 1) * 10 + 1}-{Math.min(currentPage * 10, totalCount)} of {totalCount}
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open)
+            if (!open) setEditingAnnouncement(null)
+          }}>
+            <DialogTrigger
+              render={
+                <Button>
+                  <Plus size={14} />
+                  Create Announcement
+                </Button>
+              }
+            />
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>{editingAnnouncement ? 'Edit Announcement' : 'Create Announcement'}</DialogTitle>
+              </DialogHeader>
+              <div style={{ marginTop: '16px' }}>
+                <AnnouncementForm
+                  initialData={editingAnnouncement}
+                  onSuccess={(newAnnouncement: any) => {
+                    setIsDialogOpen(false)
+                    if (editingAnnouncement) {
+                      setAnnouncements(announcements.map((a: any) => (a.id === newAnnouncement.id ? newAnnouncement : a)))
+                    } else {
+                      setAnnouncements([newAnnouncement, ...announcements])
+                    }
+                    setEditingAnnouncement(null)
+                    router.refresh()
+                  }}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Table */}
@@ -114,7 +152,7 @@ export function AnnouncementsClient({ initialAnnouncements }: { initialAnnouncem
                 </TableCell>
               </TableRow>
             ) : (
-              announcements.map((announcement) => {
+              announcements.map((announcement: any) => {
                 const isExpired = announcement.expires_at && isPast(new Date(announcement.expires_at))
                 const isUrgent = announcement.type === 'urgent'
 
@@ -213,6 +251,61 @@ export function AnnouncementsClient({ initialAnnouncements }: { initialAnnouncem
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              
+              {[...Array(totalPages)].map((_, i) => {
+                const pageNum = i + 1
+                if (
+                  pageNum === 1 || 
+                  pageNum === totalPages || 
+                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                ) {
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink 
+                        onClick={() => handlePageChange(pageNum)}
+                        isActive={currentPage === pageNum}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                }
+                if (
+                  (pageNum === 2 && currentPage > 3) || 
+                  (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                ) {
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )
+                }
+                return null
+              })}
+
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   )
 }

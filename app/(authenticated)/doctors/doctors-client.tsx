@@ -1,28 +1,57 @@
-﻿'use client'
+'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import { Edit, Trash2, Stethoscope, Plus, Check, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { DoctorForm } from './doctor-form'
 
-export function DoctorsClient({ initialDoctors }: { initialDoctors: any[] }) {
+interface DoctorsClientProps {
+  initialDoctors: any[]
+  currentPage: number
+  totalPages: number
+  totalCount: number
+}
+
+export function DoctorsClient({ 
+  initialDoctors,
+  currentPage,
+  totalPages,
+  totalCount
+}: DoctorsClientProps) {
   const [doctors, setDoctors] = useState(initialDoctors)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingDoctor, setEditingDoctor] = useState<any>(null)
+  
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  
   const supabase = createClient()
+
+  useEffect(() => {
+    setDoctors(initialDoctors)
+  }, [initialDoctors])
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from('doctors').delete().eq('id', id)
     if (error) { toast.error(error.message) } else {
       toast.success('Doctor deleted')
-      setDoctors(doctors.filter((d) => d.id !== id))
+      setDoctors(doctors.filter((d: any) => d.id !== id))
       router.refresh()
     }
   }
@@ -31,24 +60,35 @@ export function DoctorsClient({ initialDoctors }: { initialDoctors: any[] }) {
     const { error } = await supabase.from('doctors').update({ available: !current }).eq('id', id)
     if (error) { toast.error(error.message) } else {
       toast.success('Availability updated')
-      setDoctors(doctors.map((d) => d.id === id ? { ...d, available: !current } : d))
+      setDoctors(doctors.map((d: any) => d.id === id ? { ...d, available: !current } : d))
     }
+  }
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('page', page.toString())
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div className="page-header">
         <h1 className="page-title">Doctors</h1>
-        <Button onClick={() => setIsDialogOpen(true)}><Plus size={14} /> Add Doctor</Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+            Showing {(currentPage - 1) * 10 + 1}-{Math.min(currentPage * 10, totalCount)} of {totalCount}
+          </div>
+          <Button onClick={() => setIsDialogOpen(true)}><Plus size={14} /> Add Doctor</Button>
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) setEditingDoctor(null) }}>
           <DialogContent className="sm:max-w-[560px]">
             <DialogHeader><DialogTitle>{editingDoctor ? 'Edit Doctor' : 'Add Doctor'}</DialogTitle></DialogHeader>
             <div style={{ marginTop: '16px' }}>
               <DoctorForm
                 initialData={editingDoctor}
-                onSuccess={(doc) => {
+                onSuccess={(doc: any) => {
                   setIsDialogOpen(false)
-                  if (editingDoctor) { setDoctors(doctors.map((d) => d.id === doc.id ? doc : d)) }
+                  if (editingDoctor) { setDoctors(doctors.map((d: any) => d.id === doc.id ? doc : d)) }
                   else { setDoctors([doc, ...doctors]) }
                   setEditingDoctor(null)
                   router.refresh()
@@ -86,7 +126,7 @@ export function DoctorsClient({ initialDoctors }: { initialDoctors: any[] }) {
                 </TableCell>
               </TableRow>
             ) : (
-              doctors.map((doc) => (
+              doctors.map((doc: any) => (
                 <TableRow key={doc.id}>
                   <TableCell style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{doc.name}</TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{doc.specialization}</TableCell>
@@ -124,11 +164,61 @@ export function DoctorsClient({ initialDoctors }: { initialDoctors: any[] }) {
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              
+              {[...Array(totalPages)].map((_, i) => {
+                const pageNum = i + 1
+                if (
+                  pageNum === 1 || 
+                  pageNum === totalPages || 
+                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                ) {
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink 
+                        onClick={() => handlePageChange(pageNum)}
+                        isActive={currentPage === pageNum}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                }
+                if (
+                  (pageNum === 2 && currentPage > 3) || 
+                  (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                ) {
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )
+                }
+                return null
+              })}
+
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   )
 }
-
-
-
-
-

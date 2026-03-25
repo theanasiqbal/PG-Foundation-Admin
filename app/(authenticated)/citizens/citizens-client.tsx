@@ -1,6 +1,7 @@
-﻿'use client'
+'use client'
 
-import { useState } from 'react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -8,7 +9,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Search, Star, Users } from 'lucide-react'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+import { Search, Star, Users, ChevronLeft, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { CitizenDetail } from './citizen-detail'
 
@@ -26,7 +36,6 @@ const INTEREST_COLORS: Record<string, string> = {
 function getInterestColor(interest: string) {
   if (INTEREST_COLORS[interest]) return INTEREST_COLORS[interest]
   
-  // Fallback: simple hash based color
   const colors = ['#3B82F6', '#10B981', '#F59E0B', '#F43F5E', '#8B5CF6', '#06B6D4', '#EC4899']
   let hash = 0
   for (let i = 0; i < interest.length; i++) {
@@ -35,34 +44,78 @@ function getInterestColor(interest: string) {
   return colors[Math.abs(hash) % colors.length]
 }
 
-export function CitizensClient({ initialCitizens, ageGroups }: { initialCitizens: any[]; ageGroups: string[] }) {
-  const [citizens, setCitizens] = useState(initialCitizens)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [wardFilter, setWardFilter] = useState('')
-  const [ageGroupFilter, setAgeGroupFilter] = useState('all')
+interface CitizensClientProps {
+  initialCitizens: any[]
+  ageGroups: string[]
+  currentPage: number
+  totalPages: number
+  totalCount: number
+  initialSearch: string
+  initialWard: string
+  initialAgeGroup: string
+}
+
+export function CitizensClient({ 
+  initialCitizens, 
+  ageGroups,
+  currentPage,
+  totalPages,
+  totalCount,
+  initialSearch,
+  initialWard,
+  initialAgeGroup
+}: CitizensClientProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const [searchQuery, setSearchQuery] = useState(initialSearch)
+  const [wardFilter, setWardFilter] = useState(initialWard)
+  const [ageGroupFilter, setAgeGroupFilter] = useState(initialAgeGroup)
   const [selectedCitizen, setSelectedCitizen] = useState<any>(null)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
-  const supabase = createClient()
+  // Use a effect to update URL when filters change (with a small delay for text inputs)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString())
+      if (searchQuery) params.set('search', searchQuery)
+      else params.delete('search')
+      
+      if (wardFilter) params.set('ward', wardFilter)
+      else params.delete('ward')
+      
+      if (ageGroupFilter !== 'all') params.set('ageGroup', ageGroupFilter)
+      else params.delete('ageGroup')
 
-  const filteredCitizens = citizens.filter((c) => {
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase()
-      if (
-        !c.name?.toLowerCase().includes(q) &&
-        !c.phone?.toLowerCase().includes(q) &&
-        !c.citizen_id?.toLowerCase().includes(q)
-      ) return false
-    }
-    if (wardFilter && !c.ward?.toLowerCase().includes(wardFilter.toLowerCase())) return false
-    if (ageGroupFilter !== 'all' && c.age_group !== ageGroupFilter) return false
-    return true
-  })
+      // Reset to page 1 when filters change, but only if they actually changed
+      const currentSearch = searchParams.get('search') || ''
+      const currentWard = searchParams.get('ward') || ''
+      const currentAgeGroup = searchParams.get('ageGroup') || 'all'
+
+      if (searchQuery !== currentSearch || wardFilter !== currentWard || ageGroupFilter !== currentAgeGroup) {
+        params.set('page', '1')
+      }
+
+      router.push(`${pathname}?${params.toString()}`)
+    }, 400)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery, wardFilter, ageGroupFilter, pathname, router, searchParams])
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('page', page.toString())
+    router.push(`${pathname}?${params.toString()}`)
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div className="page-header">
         <h1 className="page-title">Citizens</h1>
+        <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+          Showing {(currentPage - 1) * 10 + 1}-{Math.min(currentPage * 10, totalCount)} of {totalCount}
+        </div>
       </div>
 
       {/* Filters */}
@@ -123,7 +176,7 @@ export function CitizensClient({ initialCitizens, ageGroups }: { initialCitizens
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredCitizens.length === 0 ? (
+            {initialCitizens.length === 0 ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={8}>
                   <div className="empty-state">
@@ -136,7 +189,7 @@ export function CitizensClient({ initialCitizens, ageGroups }: { initialCitizens
                 </TableCell>
               </TableRow>
             ) : (
-              filteredCitizens.map((citizen) => (
+              initialCitizens.map((citizen) => (
                 <TableRow
                   key={citizen.id}
                   style={{ cursor: 'pointer' }}
@@ -202,6 +255,62 @@ export function CitizensClient({ initialCitizens, ageGroups }: { initialCitizens
         </Table>
       </div>
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              
+              {[...Array(totalPages)].map((_, i) => {
+                const pageNum = i + 1
+                // Show first, last, current, and pages around current
+                if (
+                  pageNum === 1 || 
+                  pageNum === totalPages || 
+                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                ) {
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink 
+                        onClick={() => handlePageChange(pageNum)}
+                        isActive={currentPage === pageNum}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                }
+                if (
+                  (pageNum === 2 && currentPage > 3) || 
+                  (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                ) {
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )
+                }
+                return null
+              })}
+
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
+
       <Dialog open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <DialogContent className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -215,4 +324,3 @@ export function CitizensClient({ initialCitizens, ageGroups }: { initialCitizens
     </div>
   )
 }
-

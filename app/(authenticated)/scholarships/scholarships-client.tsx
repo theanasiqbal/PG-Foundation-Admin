@@ -1,30 +1,59 @@
-﻿'use client'
+'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import { Edit, Trash2, Award, Plus, Check, X } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { ScholarshipForm } from './scholarship-form'
 
-export function ScholarshipsClient({ initialScholarships }: { initialScholarships: any[] }) {
+interface ScholarshipsClientProps {
+  initialScholarships: any[]
+  currentPage: number
+  totalPages: number
+  totalCount: number
+}
+
+export function ScholarshipsClient({ 
+  initialScholarships,
+  currentPage,
+  totalPages,
+  totalCount
+}: ScholarshipsClientProps) {
   const [scholarships, setScholarships] = useState(initialScholarships)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
+  
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  
   const supabase = createClient()
+
+  useEffect(() => {
+    setScholarships(initialScholarships)
+  }, [initialScholarships])
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from('scholarships').delete().eq('id', id)
     if (error) { toast.error(error.message) } else {
       toast.success('Scholarship deleted')
-      setScholarships(scholarships.filter((s) => s.id !== id))
+      setScholarships(scholarships.filter((s: any) => s.id !== id))
       router.refresh()
     }
   }
@@ -33,24 +62,35 @@ export function ScholarshipsClient({ initialScholarships }: { initialScholarship
     const { error } = await supabase.from('scholarships').update({ is_active: !current }).eq('id', id)
     if (error) { toast.error(error.message) } else {
       toast.success('Status updated')
-      setScholarships(scholarships.map((s) => s.id === id ? { ...s, is_active: !current } : s))
+      setScholarships(scholarships.map((s: any) => s.id === id ? { ...s, is_active: !current } : s))
     }
+  }
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('page', page.toString())
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div className="page-header">
         <h1 className="page-title">Scholarships</h1>
-        <Button onClick={() => setIsDialogOpen(true)}><Plus size={14} /> Add Scholarship</Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+            Showing {(currentPage - 1) * 10 + 1}-{Math.min(currentPage * 10, totalCount)} of {totalCount}
+          </div>
+          <Button onClick={() => setIsDialogOpen(true)}><Plus size={14} /> Add Scholarship</Button>
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) setEditing(null) }}>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader><DialogTitle>{editing ? 'Edit Scholarship' : 'Add Scholarship'}</DialogTitle></DialogHeader>
             <div style={{ marginTop: '16px' }}>
               <ScholarshipForm
                 initialData={editing}
-                onSuccess={(s) => {
+                onSuccess={(s: any) => {
                   setIsDialogOpen(false)
-                  if (editing) { setScholarships(scholarships.map((x) => x.id === s.id ? s : x)) }
+                  if (editing) { setScholarships(scholarships.map((x: any) => x.id === s.id ? s : x)) }
                   else { setScholarships([s, ...scholarships]) }
                   setEditing(null)
                   router.refresh()
@@ -86,7 +126,7 @@ export function ScholarshipsClient({ initialScholarships }: { initialScholarship
                 </TableCell>
               </TableRow>
             ) : (
-              scholarships.map((s) => (
+              scholarships.map((s: any) => (
                 <TableRow key={s.id}>
                   <TableCell style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{s.name}</TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{s.organization}</TableCell>
@@ -122,6 +162,61 @@ export function ScholarshipsClient({ initialScholarships }: { initialScholarship
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              
+              {[...Array(totalPages)].map((_, i) => {
+                const pageNum = i + 1
+                if (
+                  pageNum === 1 || 
+                  pageNum === totalPages || 
+                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                ) {
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink 
+                        onClick={() => handlePageChange(pageNum)}
+                        isActive={currentPage === pageNum}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                }
+                if (
+                  (pageNum === 2 && currentPage > 3) || 
+                  (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                ) {
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )
+                }
+                return null
+              })}
+
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   )
 }
