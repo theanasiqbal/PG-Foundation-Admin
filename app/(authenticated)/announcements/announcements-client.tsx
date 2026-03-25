@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -109,7 +109,7 @@ export function AnnouncementsClient({ initialAnnouncements }: { initialAnnouncem
                   <div className="empty-state">
                     <Megaphone size={40} className="empty-state-icon" />
                     <div className="empty-state-title">No announcements found</div>
-                    <div className="empty-state-desc">Create your first announcement →</div>
+                    <div className="empty-state-desc">Create your first announcement â†’</div>
                   </div>
                 </TableCell>
               </TableRow>
@@ -216,3 +216,4 @@ export function AnnouncementsClient({ initialAnnouncements }: { initialAnnouncem
     </div>
   )
 }
+

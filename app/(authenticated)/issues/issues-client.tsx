@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -108,7 +108,7 @@ export function IssuesClient({ initialIssues, admins }: { initialIssues: any[]; 
           <Label style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500, marginLeft: '2px' }}>Issue Type</Label>
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: '10px', top: '11px', color: 'var(--text-muted)' }} />
-            <Input placeholder="Filter by type…" style={{ paddingLeft: '32px' }} value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} />
+            <Input placeholder="Filter by typeâ€¦" style={{ paddingLeft: '32px' }} value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} />
           </div>
         </div>
 
@@ -116,7 +116,7 @@ export function IssuesClient({ initialIssues, admins }: { initialIssues: any[]; 
           <Label style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500, marginLeft: '2px' }}>Ward</Label>
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: '10px', top: '11px', color: 'var(--text-muted)' }} />
-            <Input placeholder="Filter by ward…" style={{ paddingLeft: '32px' }} value={wardFilter} onChange={(e) => setWardFilter(e.target.value)} />
+            <Input placeholder="Filter by wardâ€¦" style={{ paddingLeft: '32px' }} value={wardFilter} onChange={(e) => setWardFilter(e.target.value)} />
           </div>
         </div>
       </div>
@@ -236,3 +236,4 @@ export function IssuesClient({ initialIssues, admins }: { initialIssues: any[]; 
     </div>
   )
 }
+

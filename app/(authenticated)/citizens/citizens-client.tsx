@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -72,7 +72,7 @@ export function CitizensClient({ initialCitizens, ageGroups }: { initialCitizens
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: '10px', top: '11px', color: 'var(--text-muted)' }} />
             <Input
-              placeholder="Name, phone, or ID…"
+              placeholder="Name, phone, or IDâ€¦"
               style={{ paddingLeft: '32px' }}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -85,7 +85,7 @@ export function CitizensClient({ initialCitizens, ageGroups }: { initialCitizens
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: '10px', top: '11px', color: 'var(--text-muted)' }} />
             <Input
-              placeholder="Filter by ward…"
+              placeholder="Filter by wardâ€¦"
               style={{ paddingLeft: '32px' }}
               value={wardFilter}
               onChange={(e) => setWardFilter(e.target.value)}
@@ -215,3 +215,4 @@ export function CitizensClient({ initialCitizens, ageGroups }: { initialCitizens
     </div>
   )
 }
+
