@@ -12,6 +12,8 @@ import { Switch } from '@/components/ui/switch'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+
 
 const schema = z.object({
   name: z.string().min(1, 'Required'),
@@ -23,8 +25,10 @@ const schema = z.object({
   eligibility: z.string().min(1, 'Required'),
   description: z.string().min(1, 'Required'),
   benefits: z.string().optional(),
+  provider_type: z.enum(['Foundation', 'Government']),
   is_active: z.boolean(),
 })
+
 
 type FormValues = z.infer<typeof schema>
 
@@ -44,8 +48,10 @@ export function ScholarshipForm({ initialData, onSuccess }: { initialData?: any;
       eligibility: initialData?.eligibility || '',
       description: initialData?.description || '',
       benefits: initialData?.benefits?.join(', ') || '',
+      provider_type: initialData?.provider_type || 'Government',
       is_active: initialData?.is_active ?? true,
     },
+
   })
 
   const onSubmit = async (data: FormValues) => {
@@ -95,7 +101,7 @@ export function ScholarshipForm({ initialData, onSuccess }: { initialData?: any;
         </div>
         <div className="space-y-2">
           <Label>Amount *</Label>
-          <Input placeholder="e.g. PKR 50,000/year" {...register('amount')} />
+          <Input placeholder="e.g. Rs. 50,000/year" {...register('amount')} />
           {errors.amount && <p className="text-red-500 text-sm">{errors.amount.message}</p>}
         </div>
       </div>
@@ -124,6 +130,22 @@ export function ScholarshipForm({ initialData, onSuccess }: { initialData?: any;
         <Label>Benefits (comma-separated)</Label>
         <Input placeholder="e.g. Tuition fee, Monthly stipend" {...register('benefits')} />
       </div>
+      <div className="space-y-2">
+        <Label>Provider Type *</Label>
+        <Select 
+          value={watch('provider_type')} 
+          onValueChange={(v) => setValue('provider_type', v as 'Foundation' | 'Government')}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select provider type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Foundation">Foundation Provided</SelectItem>
+            <SelectItem value="Government">Govt Provided</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="flex items-center space-x-2">
         <Switch id="is_active_scholarship" checked={watch('is_active')} onCheckedChange={(v) => setValue('is_active', v)} />
         <Label htmlFor="is_active_scholarship">Active</Label>

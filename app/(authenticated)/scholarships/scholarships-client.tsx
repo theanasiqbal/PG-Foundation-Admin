@@ -108,7 +108,9 @@ export function ScholarshipsClient({
               <TableHead>Name</TableHead>
               <TableHead>Organization</TableHead>
               <TableHead>Category</TableHead>
+              <TableHead>Provider</TableHead>
               <TableHead>Amount</TableHead>
+
               <TableHead>Last Date</TableHead>
               <TableHead>Active</TableHead>
               <TableHead style={{ textAlign: 'right' }}>Actions</TableHead>
@@ -131,7 +133,13 @@ export function ScholarshipsClient({
                   <TableCell style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{s.name}</TableCell>
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{s.organization}</TableCell>
                   <TableCell><Badge variant="default">{s.category}</Badge></TableCell>
+                  <TableCell>
+                    <Badge variant={s.provider_type === 'Foundation' ? 'secondary' : 'outline'}>
+                      {s.provider_type || 'Government'}
+                    </Badge>
+                  </TableCell>
                   <TableCell style={{ fontSize: '13px', fontWeight: 500, color: 'var(--success)' }}>{s.amount}</TableCell>
+
                   <TableCell style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{format(new Date(s.last_date), 'MMM d, yyyy')}</TableCell>
                   <TableCell>
                     <button onClick={() => toggleActive(s.id, s.is_active)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: s.is_active ? 'var(--success)' : 'var(--text-muted)' }}>
