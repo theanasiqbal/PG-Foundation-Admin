@@ -57,7 +57,7 @@ const navGroups: NavGroup[] = [
     label: 'Monitor',
     items: [
       { name: 'Citizens', href: '/citizens', icon: Users },
-      { name: 'Issues', href: '/issues', icon: AlertTriangle },
+      // { name: 'Issues', href: '/issues', icon: AlertTriangle },
       { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     ],
   },
